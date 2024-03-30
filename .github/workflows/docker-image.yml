@@ -6,7 +6,7 @@ on:
       - master # Adjust as necessary for your workflow
     tags:
       - "v*" # Trigger on semantic version tags like v1.0.3
-      # testing tags
+      # testing tags last try
 
 env:
   IMAGE_NAME: karimdaw/carbon-service
