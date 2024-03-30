@@ -2,8 +2,8 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches:
-      - master
+    # branches:
+    #   - master
     tags:
       - "v*"
 
@@ -74,5 +74,4 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_INSTANCE_IP }} "\
           docker pull karimdaw/carbon-service:${{ env.VERSION_TAG }} && \
           docker stop myCarbonServiceContainer || true && \
-          docker rm myCarbonServiceContainer || true && \
           docker run --name myCarbonServiceContainer --detach --rm -p 80:8080 karimdaw/carbon-service:${{ env.VERSION_TAG }}"
