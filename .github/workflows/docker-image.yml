@@ -37,15 +37,21 @@ jobs:
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
 
+      - name: Prepare tags
+        run: |
+          TAGS="${{ env.IMAGE_NAME }}:sha-${{ env.SHORT_SHA }}"
+          if [ -n "${{ env.VERSION_TAG }}" ]; then
+            TAGS="${TAGS},${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
+          fi
+          echo "TAGS=$TAGS" >> $GITHUB_ENV
+
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: |
-            ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}
-            ${{ env.IMAGE_NAME }}:sha-${{ env.SHORT_SHA }}
+          tags: ${{ env.TAGS }}
           build-args: |
             VERSION=${{ env.VERSION_TAG }}
             COMMIT_SHA=${{ env.SHORT_SHA }}
