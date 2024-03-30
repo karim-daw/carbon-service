@@ -31,7 +31,8 @@ jobs:
           context: .
           file: ./Dockerfile # Adjust if your Dockerfile is located elsewhere
           push: true
-          tags: ${{ env.IMAGE_NAME }}:latest # You can also append a version or use GitHub SHA
+          # tags: ${{ env.IMAGE_NAME }}:latest # You can also append a version or use GitHub SHA
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Image digest
         run: echo "The image digest is ${{ steps.docker_build.outputs.digest }}"
