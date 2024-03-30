@@ -58,7 +58,9 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+
     if: contains(github.ref, 'refs/tags/')
+
     steps:
       - name: Set up SSH key
         run: |
