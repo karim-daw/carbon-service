@@ -75,4 +75,4 @@ jobs:
           docker pull ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }} && \
           docker stop ${{ env.IMAGE_NAME }} || true && \
           docker rm ${{ env.IMAGE_NAME }} || true && \
-          docker run --name ${{ env.IMAGE_NAME }} --detach --rm -p 80:8080 ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
+          docker run --name ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }} --detach --rm -p 80:8080 ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
