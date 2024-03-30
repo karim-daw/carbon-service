@@ -38,10 +38,7 @@ jobs:
 
       - name: Prepare tags
         run: |
-          TAGS="${{ env.IMAGE_NAME }}:sha-${{ env.SHORT_SHA }}"
-          if [ -n "${{ env.VERSION_TAG }}" ]; then
-            TAGS="${TAGS},${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
-          fi
+          TAGS="${{ env.IMAGE_NAME }}:sha-${{ env.SHORT_SHA }}, ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
           echo "TAGS=$TAGS" >> $GITHUB_ENV
 
       - name: Build and push
