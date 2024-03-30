@@ -2,8 +2,8 @@ name: Build and Push Docker Image
 
 on:
   push:
-    # branches:
-    #   - master
+    branches:
+      - master
     tags:
       - "v*"
 
@@ -73,6 +73,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_INSTANCE_IP }} "\
           docker pull ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }} && \
-          docker stop my_app_container || true && \
-          docker rm my_app_container || true && \
-          docker run --name my_app_container --detach --rm -p 80:8080 ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
+          docker stop ${{ env.IMAGE_NAME } || true && \
+          docker rm ${{ env.IMAGE_NAME } || true && \
+          docker run --name ${{ env.IMAGE_NAME } --detach --rm -p 80:8080 ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
