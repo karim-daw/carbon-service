@@ -71,8 +71,8 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_INSTANCE_IP }} "\
-          docker pull ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }} && \
-          docker stop ${{ env.IMAGE_NAME }} || true && \
-          docker rm ${{ env.IMAGE_NAME }} || true && \
-          docker run --name ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }} --detach --rm -p 80:8080 ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@your-ec2-instance-ip "\
+          docker pull karimdaw/carbon-service:${{ env.VERSION_TAG }} && \
+          docker stop myCarbonServiceContainer || true && \
+          docker rm myCarbonServiceContainer || true && \
+          docker run --name myCarbonServiceContainer --detach --rm -p 80:8080 karimdaw/carbon-service:${{ env.VERSION_TAG }}"
