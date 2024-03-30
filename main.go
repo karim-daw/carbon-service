@@ -21,6 +21,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// building struct to define building data.
 type building struct {
 	ID       string  `json:"id"`
 	Name     string  `json:"name"`
