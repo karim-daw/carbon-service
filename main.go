@@ -13,7 +13,6 @@ package main
 // build
 // go build
 // go build -o myapp
-// go build -o myapp.exe
 
 import (
 	"net/http"
