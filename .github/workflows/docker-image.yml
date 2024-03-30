@@ -1,12 +1,14 @@
-name: Build and Push Docker image
-# test
+name: Build and Push Docker Image
+
 on:
   push:
     branches:
-      - master # Set to your default branch
+      - master # Adjust as necessary for your workflow
+    tags:
+      - "v*" # Trigger on semantic version tags like v1.0.3
 
 env:
-  IMAGE_NAME: karimdaw/carbon-service # Replace with your Docker image name
+  IMAGE_NAME: karimdaw/carbon-service
 
 jobs:
   docker:
@@ -25,14 +27,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Extract version tag
+        id: version_tag
+        run: |
+          echo "VERSION_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./Dockerfile # Adjust if your Dockerfile is located elsewhere
+          file: ./Dockerfile
           push: true
-          # tags: ${{ env.IMAGE_NAME }}:latest # You can also append a version or use GitHub SHA
-          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}
 
       - name: Image digest
         run: echo "The image digest is ${{ steps.docker_build.outputs.digest }}"
