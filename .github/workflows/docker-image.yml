@@ -55,22 +55,22 @@ jobs:
             VERSION=${{ env.VERSION_TAG }}
             COMMIT_SHA=${{ env.SHORT_SHA }}
 
-deploy:
-  needs: build-and-push
-  runs-on: ubuntu-latest
-  if: contains(github.ref, 'refs/tags/')
-  steps:
-    - name: Set up SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.EC2_INSTANCE_IP }} >> ~/.ssh/known_hosts
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'refs/tags/')
+    steps:
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_INSTANCE_IP }} >> ~/.ssh/known_hosts
 
-    - name: Deploy to EC2
-      run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_INSTANCE_IP }} "\
-        docker pull ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }} && \
-        docker stop my_container || true && \
-        docker rm my_container || true && \
-        docker run --name my_container --detach --rm -p 80:8080 ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_INSTANCE_IP }} "\
+          docker pull ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }} && \
+          docker stop my_container || true && \
+          docker rm my_container || true && \
+          docker run --name my_container --detach --rm -p 80:8080 ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
