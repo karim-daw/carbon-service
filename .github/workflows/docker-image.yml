@@ -2,17 +2,16 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches:
-      - master # Adjust as necessary for your workflow
+    # branches:
+    #   - master
     tags:
-      - "v*" # Trigger on semantic version tags like v1.0.3
-      # testing tags last try
+      - "v*"
 
 env:
   IMAGE_NAME: karimdaw/carbon-service
 
 jobs:
-  docker:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +28,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Extract version tag and short SHA
-        id: prep
         run: |
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             VERSION_TAG=${GITHUB_REF#refs/tags/}
@@ -57,5 +55,16 @@ jobs:
             VERSION=${{ env.VERSION_TAG }}
             COMMIT_SHA=${{ env.SHORT_SHA }}
 
-      - name: Image digest
-        run: echo "The image digest is ${{ steps.docker_build.outputs.digest }}"
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'refs/tags/')
+    steps:
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ec2-user@${{ secrets.EC2_INSTANCE_IP }} "\
+          docker pull ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }} && \
+          docker stop my_container || true && \
+          docker run --name my_container --detach --rm -p 80:8080 ${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
