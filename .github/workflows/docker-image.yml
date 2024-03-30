@@ -6,7 +6,7 @@ on:
       - master # Set to your default branch
 
 env:
-  IMAGE_NAME: carbon-service # Replace with your Docker image name
+  IMAGE_NAME: karimdaw/carbon-service # Replace with your Docker image name
 
 jobs:
   docker:
