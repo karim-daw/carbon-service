@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - master
-    tags:
-      - "v*"
+    # tags:
+    #   - "v*"
 
 env:
   IMAGE_NAME: karimdaw/carbon-service
+  VERSION_TAG: v0.0.14
 
 jobs:
   build-and-push:
@@ -29,10 +30,6 @@ jobs:
 
       - name: Extract version tag and short SHA
         run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            VERSION_TAG=${GITHUB_REF#refs/tags/}
-            echo "VERSION_TAG=$VERSION_TAG" >> $GITHUB_ENV
-          fi
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
 
@@ -69,6 +66,6 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_INSTANCE_IP }} "\
-          docker pull karimdaw/carbon-service:v0.0.14 && \
+          docker pull karimdaw/carbon-service:${{ env.VERSION_TAG }} && \
           docker stop myCarbonServiceContainer || true && \
-          docker run --name myCarbonServiceContainer --detach --rm -p 80:8080 karimdaw/carbon-service:v0.0.14"
+          docker run --name myCarbonServiceContainer --detach --rm -p 80:8080 karimdaw/carbon-service:${{ env.VERSION_TAG }}"
