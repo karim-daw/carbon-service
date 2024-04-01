@@ -1,33 +1,57 @@
 package repository
 
 import (
-	"github.com/karimdaw/carbon-service/model"
+	"carbon-service/model"
+
 	"gorm.io/gorm"
 )
 
-type UserRepository interface {
+type BuildingRepository interface {
 	Save(user *model.Building)
-	ExistsByUsername(username string) bool
+	ExistsByBuildingName(username string) bool
+	FindByID(id int) (*model.Building, error)
+	FindAll() ([]model.Building, error)
 }
 
-type userRepository struct {
+type buildingRepository struct {
 	db *gorm.DB
 }
 
-func (repository *userRepository) Save(user *domain.User) {
+func (repository *buildingRepository) Save(user *model.Building) {
 	repository.db.Save(user)
 }
 
-func (repository *userRepository) ExistsByUsername(username string) bool {
+// ExistsByUsername checks if a user with the given username exists in the database
+func (repository *buildingRepository) ExistsByBuildingName(buildingName string) bool {
 	var count int64
-	repository.db.Model(&domain.User{}).Where("username = ?", username).Count(&count)
+	repository.db.Model(&model.Building{}).Where("name = ?", buildingName).Count(&count)
 	return count > 0
 }
 
-func NewUserRepository(db *gorm.DB) UserRepository {
-	var repository UserRepository
+// Find by id returns a building by its id
+func (repository *buildingRepository) FindByID(id int) (*model.Building, error) {
+	var building model.Building
+	err := repository.db.First(&building, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &building, nil
+}
 
-	repository = &userRepository{
+// FindAll returns all buildings
+func (repository *buildingRepository) FindAll() ([]model.Building, error) {
+	var buildings []model.Building
+	err := repository.db.Find(&buildings).Error
+	if err != nil {
+		return nil, err
+	}
+	return buildings, nil
+}
+
+// NewUserRepository creates a new UserRepository
+func NewUserRepository(db *gorm.DB) BuildingRepository {
+
+	repository := &buildingRepository{
 		db: db,
 	}
 
