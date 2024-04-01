@@ -49,7 +49,7 @@ func (repository *buildingRepository) FindAll() ([]model.Building, error) {
 }
 
 // NewUserRepository creates a new UserRepository
-func NewUserRepository(db *gorm.DB) BuildingRepository {
+func NewBuildingRepository(db *gorm.DB) BuildingRepository {
 
 	repository := &buildingRepository{
 		db: db,
