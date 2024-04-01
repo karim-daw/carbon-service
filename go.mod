@@ -1,4 +1,4 @@
-module example/carbon-service
+module carbon-service
 
 go 1.22.1
 
