@@ -7,7 +7,7 @@ on:
 
 env:
   IMAGE_NAME: karimdaw/carbon-service
-  VERSION_TAG: v0.0.15
+  VERSION_TAG: v0.0.16
 
 jobs:
   build-and-push:
