@@ -13,6 +13,7 @@ type BuildingController interface {
 	CreateBuilding(context *gin.Context)
 	GetBuilding(context *gin.Context)
 	GetBuildings(context *gin.Context)
+	GetTotalCarbon(context *gin.Context)
 }
 
 type buildingController struct {
@@ -72,9 +73,13 @@ func (controller buildingController) GetTotalCarbon(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"totalCarbon": totalCarbon})
 }
 
-func BuildingUserController(engine *gin.Engine, buildingService service.BuildingService) {
+func NewBuildingController(engine *gin.Engine,
+	buildingService service.BuildingService,
+	carbonCalculationService service.CarbonCalculationService,
+) {
 	controller := &buildingController{
-		service: buildingService,
+		service:                  buildingService,
+		carbonCalculationService: carbonCalculationService,
 	}
 
 	engine.POST("/buildings", controller.CreateBuilding)
