@@ -1,26 +1,34 @@
 package model
 
 import (
-	"carbon-service/calculation"
+	"carbon-service/impact"
 
 	"gorm.io/gorm"
 )
 
-// Ensure Building struct conforms to the CarbonImpactCalculator interface
-var _ calculation.CarbonImpactCalculator = &Building{}
+// Ensure Building struct conforms to the CarbonCalculator interface
+var _ impact.CarbonCalculator = &Building{}
 
 type Building struct {
 	gorm.Model
-	Name       string     `gorm:"type:string;unique;not null"`
-	Assemblies []Assembly `gorm:"foreignKey:BuildingID"`
+	Name       string      `gorm:"type:string;unique;not null"`
+	Assemblies []*Assembly `gorm:"many2many:building_assemblies;"`
 }
 
-// implement the ComputeCarbonImpact() method from the CarbonImpactCalculator interface
-func (b Building) ComputeCarbonImpact() float64 {
+// ComputeWholeLifeCarbon calculates the total carbon impact of the building.
+func (b *Building) ComputeWholeLifeCarbon() float64 {
 	var totalImpact float64
 	for _, assembly := range b.Assemblies {
-		// Ensure Assembly implements ComputeCarbonImpact() and correctly calculates its impact
-		totalImpact += assembly.ComputeCarbonImpact()
+		totalImpact += assembly.ComputeWholeLifeCarbon()
 	}
 	return totalImpact
+}
+
+// CalculateCarbonForPhase calculates the building's carbon impact for specified phases.
+func (b *Building) CalculateCarbonForPhase(phases ...string) float64 {
+	var total float64
+	for _, assembly := range b.Assemblies {
+		total += assembly.CalculateCarbonForPhase(phases...)
+	}
+	return total
 }
