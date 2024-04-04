@@ -6,81 +6,86 @@ import (
 	"fmt"
 )
 
-// CalculationService interface for calculating carbon footprint of a building
-type CalculationService interface {
-	ComputeBuildingTotalCarbon(buildingID uint) (float64, error)
-}
-
-// CalculationService struct that implements the CalculationService interface
-type calculationService struct {
-	buildingRepo repository.BuildingRepository
-}
-
-// Creates a new CalculationService
-func NewCalculationService(buildingRepo repository.BuildingRepository) *calculationService {
-	return &calculationService{buildingRepo: buildingRepo}
-}
-
-// Calculate the total carbon footprint of a building
-// This method fetches the building from the repository and calls the ComputeCarbonImpact() method on it, if the building is found successfully in the repository
-// If the building is not found, an error is returned
-func (s *calculationService) ComputeBuildingTotalCarbon(buildingID uint) (float64, error) {
-	building, err := s.buildingRepo.FindByID(buildingID)
-	if err != nil {
-		return 0, fmt.Errorf(" Errorr in ComputeBuildingTotalCarbon, failed to find building with ID %d: %w", buildingID, err)
-	}
-	return building.ComputeCarbonImpact(), nil
-}
-
-// BuildingService interface for building operations like create, get, get all
+// BuildingService defines the operations available for managing buildings,
+// including creation, retrieval, and carbon footprint calculation.
 type BuildingService interface {
-	CreateBuilding(name string) (*model.Building, error)
+	CreateBuilding(req CreateBuildingRequest) (*model.Building, error)
 	GetBuilding(id uint) (*model.Building, error)
 	GetAllBuildings() ([]model.Building, error)
+	ComputeTotalCarbon(buildingID uint) (float64, error)
 }
 
-// BuildingService struct that implements the BuildingService interface
+// buildingService provides a concrete implementation of the BuildingService,
+// interacting with building data and carbon calculations.
 type buildingService struct {
-	repo repository.BuildingRepository
+	repo              repository.BuildingRepository
+	carbonCalcService CalculationService // Dependency for carbon calculations
 }
 
-// NewBuildingService creates a new BuildingService with the provided repository
-func NewBuildingService(repo repository.BuildingRepository) BuildingService {
-	return &buildingService{repo: repo}
+// NewBuildingService initializes a new building service with necessary dependencies.
+func NewBuildingService(r repository.BuildingRepository, cs CalculationService) BuildingService {
+	return &buildingService{
+		repo:              r,
+		carbonCalcService: cs,
+	}
 }
 
-// CreateBuilding creates a new building with the given name and returns it
-// If a building with the same name already exists, an error is returned
-// If the building is successfully created, it is returned
-// If there is an error while saving the building, an error is returned
-func (s *buildingService) CreateBuilding(name string) (*model.Building, error) {
-	if s.repo.ExistsByBuildingName(name) {
-		return nil, fmt.Errorf("building name '%s' already exists", name)
+type CreateBuildingRequest struct {
+	Name       string           `json:"name" binding:"required"`
+	Assemblies []model.Assembly `json:"assemblies"`
+}
+
+// CreateBuilding attempts to add a new building with the given name,
+// ensuring name uniqueness within the repository.
+func (bs *buildingService) CreateBuilding(req CreateBuildingRequest) (*model.Building, error) {
+	if bs.repo.ExistsByBuildingName(req.Name) {
+		return nil, fmt.Errorf("building name '%s' already exists", req.Name)
 	}
 
-	building := &model.Building{Name: name}
-	if err := s.repo.Save(building); err != nil {
+	assemblies := make([]*model.Assembly, len(req.Assemblies))
+	for i, assembly := range req.Assemblies {
+		assemblies[i] = &assembly
+	}
+
+	building := &model.Building{
+		Name:       req.Name,
+		Assemblies: assemblies, // This can be an empty slice if no assemblies are provided
+	}
+	if err := bs.repo.Save(building); err != nil {
 		return nil, fmt.Errorf("failed to create building: %w", err)
 	}
 	return building, nil
 }
 
-// GetBuilding fetches a building with the given ID and returns it
-// If the building is not found, an error is returned
-func (s *buildingService) GetBuilding(id uint) (*model.Building, error) {
-	building, err := s.repo.FindByID(id)
+// GetBuilding fetches a single building by its unique identifier.
+// this method uses the EagerFindByID method from the repository to preload
+// the building's assemblies and materials.
+func (bs *buildingService) GetBuilding(id uint) (*model.Building, error) {
+	building, err := bs.repo.EagerFindByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find building with ID %d: %w", id, err)
 	}
 	return building, nil
 }
 
-// GetAllBuildings fetches all buildings and returns them
-// If there is an error while fetching the buildings, an error is returned
-func (s *buildingService) GetAllBuildings() ([]model.Building, error) {
-	buildings, err := s.repo.FindAll()
+// GetAllBuildings retrieves all buildings stored in the repository.
+func (bs *buildingService) GetAllBuildings() ([]model.Building, error) {
+	buildings, err := bs.repo.FindAll()
 	if err != nil {
 		return nil, fmt.Errorf("failed to find buildings: %w", err)
 	}
 	return buildings, nil
+}
+
+// Example of a method in the buildingService that preloads necessary data before calculation
+func (bs *buildingService) ComputeTotalCarbon(buildingID uint) (float64, error) {
+	var building *model.Building
+	// Preload Assemblies and Materials for the building
+	building, err := bs.repo.EagerFindByID(buildingID) // Assign the value to building pointer
+	if err != nil {
+		return 0, fmt.Errorf("failed to find building with ID %d: %w", buildingID, err)
+	}
+
+	// Now that we have a fully loaded building, calculate the total carbon impact
+	return building.ComputeWholeLifeCarbon(), nil
 }
