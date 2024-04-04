@@ -1,37 +1,28 @@
 package main
 
 import (
-	"carbon-service/model"
 	"log"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 
 	"carbon-service/controller"
 	"carbon-service/database"
 	"carbon-service/helpers"
+	"carbon-service/model"
 	"carbon-service/repository"
 	"carbon-service/service"
-
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
-// some go cli commands
-// go mod init carbon-service
-// go mod tidy
-// go mod vendor
-// go mod download
-// go mod verify
-// go mod graph
-// go mod edit
-// go mod why
-// go mod why -m github.com/gin-gonic/gin
-// go mod why -m github.com/jinzhu/gorm
-// run the app
-// go run main.go
 func main() {
-	godotenv.Load()
+	// Load environment variables
+	if err := godotenv.Load(); err != nil {
+		log.Println("Warning: .env file could not be loaded. Proceeding with environment variables.")
+	}
 
-	// create db config
-	dbConfig := &database.DbConfig{
+	// Create db config from environment variables
+	dbConfig := database.DbConfig{
 		User:     helpers.LoadEnvVar("POSTGRES_USERNAME"),
 		Password: helpers.LoadEnvVar("POSTGRES_PASSWORD"),
 		DbName:   helpers.LoadEnvVar("DATABASE_NAME"),
@@ -40,22 +31,43 @@ func main() {
 		Schema:   helpers.LoadEnvVar("DATABASE_SCHEMA"),
 	}
 
-	db, err := database.ConnectDatabase(dbConfig)
+	// Connect to the database
+	db, err := database.ConnectDatabase(&dbConfig)
 	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&model.Building{})
-	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	buildingRepository := repository.NewBuildingRepository(db)
-	buildingService := service.NewBuildingService(buildingRepository)
-	calculationService := service.NewCarbonCalculationService(buildingRepository)
+	// Perform database migration
+	if err := db.AutoMigrate(&model.Building{}, &model.Assembly{}, &model.Material{}); err != nil {
+		log.Fatalf("Failed to auto-migrate database schemas: %v", err)
+	}
 
-	engine := gin.Default()
+	// Initialize repository, service, and controller
+	br := repository.NewBuildingRepository(db)
+	ar := repository.NewAssemblyRepository(db)
+	mr := repository.NewMaterialRepository(db)
 
-	controller.NewBuildingController(engine, buildingService, calculationService)
+	// Initialize services
+	cs := service.NewCalculationService() // Assuming this is correctly implemented based on previous discussions
 
-	log.Fatal(engine.Run(":8080"))
+	// Inject dependencies into building service
+	bs := service.NewBuildingService(br, cs)
+	as := service.NewAssemblyService(ar, cs)
+	ms := service.NewMaterialService(mr, cs)
+
+	router := gin.Default()
+
+	// Inject services into controller
+	controller.NewBuildingController(router, bs, cs)
+	controller.NewAssemblyController(router, as, cs)
+	controller.NewMaterialController(router, ms, cs)
+
+	// Start the server
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // Default port if not specified
+	}
+	if err := router.Run(":" + port); err != nil {
+		log.Fatalf("Error starting server: %s\n", err)
+	}
 }
