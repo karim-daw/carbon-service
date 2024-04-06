@@ -19,6 +19,7 @@ type buildingRepository struct {
 	db *gorm.DB
 }
 
+// Save persists a building to the database.
 func (r *buildingRepository) Save(building *model.Building) error {
 	return r.db.Save(building).Error
 }
