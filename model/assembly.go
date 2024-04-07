@@ -32,3 +32,10 @@ func (a Assembly) CalculateCarbonForPhase(phases ...string) float64 {
 	}
 	return total
 }
+
+func (a *Assembly) ConvertValues(isMetric bool, option int) Assembly {
+	for _, material := range a.Materials {
+		material.ConvertValues(isMetric, option)
+	}
+	return *a
+}

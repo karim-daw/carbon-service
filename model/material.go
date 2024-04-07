@@ -49,3 +49,37 @@ func (m Material) CalculateCarbonForPhase(phases ...string) float64 {
 	}
 	return total
 }
+
+// ConvertValues converts the carbon values of the material to metric or imperial
+// and whether its tco2, kgco2, kgco2/m2, kgco2/m2/year
+func (m *Material) ConvertValues(isMetric bool, option int) Material {
+	if isMetric {
+		m.Indicator.IsMetric = true
+	} else {
+		m.Indicator.IsMetric = false
+	}
+
+	switch option {
+	case 1:
+		m.Indicator.A1toA5 = m.Indicator.A1toA5 / 1000
+		m.Indicator.B1toB7 = m.Indicator.B1toB7 / 1000
+		m.Indicator.C1toC4 = m.Indicator.C1toC4 / 1000
+		m.Indicator.D = m.Indicator.D / 1000
+	case 2:
+		m.Indicator.A1toA5 = m.Indicator.A1toA5 * 1000
+		m.Indicator.B1toB7 = m.Indicator.B1toB7 * 1000
+		m.Indicator.C1toC4 = m.Indicator.C1toC4 * 1000
+		m.Indicator.D = m.Indicator.D * 1000
+	case 3:
+		m.Indicator.A1toA5 = m.Indicator.A1toA5 / 1000
+		m.Indicator.B1toB7 = m.Indicator.B1toB7 / 1000
+		m.Indicator.C1toC4 = m.Indicator.C1toC4 / 1000
+		m.Indicator.D = m.Indicator.D / 1000
+		m.Indicator.A1toA5 = m.Indicator.A1toA5 / 1000
+		m.Indicator.B1toB7 = m.Indicator.B1toB7 / 1000
+		m.Indicator.C1toC4 = m.Indicator.C1toC4 / 1000
+		m.Indicator.D = m.Indicator.D / 1000
+	}
+
+	return *m
+}

@@ -32,3 +32,11 @@ func (b *Building) CalculateCarbonForPhase(phases ...string) float64 {
 	}
 	return total
 }
+
+// convert values to metric or imperial and whether its tco2, kgco2, kgco2/m2, kgco2/m2/year
+func (b *Building) ConvertValues(isMetric bool, option int) Building {
+	for _, assembly := range b.Assemblies {
+		assembly.ConvertValues(isMetric, option)
+	}
+	return *b
+}
