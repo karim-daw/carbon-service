@@ -1,4 +1,4 @@
-package impact
+package calculator
 
 // CarbonCalculator defines the interface for calculating carbon impact
 type CarbonCalculator interface {

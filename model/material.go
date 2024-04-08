@@ -1,13 +1,13 @@
 package model
 
 import (
-	"carbon-service/impact"
+	"carbon-service/service/calculator"
 
 	"gorm.io/gorm"
 )
 
 // Indicator represents the carbon footprint of a material
-var _ impact.CarbonCalculator = &Material{}
+var _ calculator.CarbonCalculator = &Material{}
 
 // Assuming Indicator is defined somewhere in your model package
 
