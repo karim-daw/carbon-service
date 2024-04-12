@@ -11,8 +11,16 @@ var _ calculator.CarbonCalculator = &Building{}
 
 type Building struct {
 	gorm.Model
-	Name       string      `gorm:"type:string;unique;not null"`
-	Assemblies []*Assembly `gorm:"many2many:building_assemblies;"`
+	Name                  string      `gorm:"type:string;unique;not null"`
+	GFA                   float64     `gorm:"type:float;not null"`
+	FTF                   float64     `gorm:"type:float;not null"`
+	FloorArea             float64     `gorm:"type:float;not null"`
+	FacadeArea            float64     `gorm:"type:float;not null"`
+	RoofArea              float64     `gorm:"type:float;not null"`
+	WWR                   float64     `gorm:"type:float;not null"`
+	AboveGroundFloorCount int         `gorm:"type:int;not null"`
+	UnderGroundFloorCount int         `gorm:"type:int;not null"`
+	Assemblies            []*Assembly `gorm:"many2many:building_assemblies;"`
 }
 
 // ComputeWholeLifeCarbon calculates the total carbon impact of the building.
