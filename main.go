@@ -55,6 +55,7 @@ func main() {
 	as := service.NewAssemblyService(ar, cs)
 	ms := service.NewMaterialService(mr, cs)
 
+	// Initialize the router which will handle the requests
 	router := gin.Default()
 
 	// Inject services into controller
