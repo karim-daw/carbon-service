@@ -23,13 +23,16 @@ func NewBuildingController(router *gin.Engine, bs service.BuildingService, cs se
 	}
 
 	router.POST("/buildings", bc.createBuilding)
+	router.PUT("/buildings/:id", bc.updateBuilding)
 	router.GET("/buildings/:id", bc.getBuilding)
 	router.GET("/buildings", bc.getBuildings)
-	router.GET("/buildings/:id/total-carbon", bc.getTotalCarbon)
+	router.GET("/buildings/:id/calculation/total-carbon", bc.getTotalCarbon)
+	router.GET("/buildings/:id/calculation/embodied-carbon", bc.getEmbodiedCarbon)
 }
 
 // createBuilding handles the creation of a new building with the provided data.
 // It expects a JSON payload with a name and an array of assemblies.
+// endpoint: POST /buildings
 func (bc *buildingController) createBuilding(ctx *gin.Context) {
 	var req service.CreateBuildingRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
