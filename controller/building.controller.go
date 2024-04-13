@@ -48,6 +48,8 @@ func (bc *buildingController) createBuilding(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, building)
 }
 
+// getBuilding fetches a building by its ID.
+// endpoint: GET /buildings/:id
 func (bc *buildingController) getBuilding(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -62,6 +64,8 @@ func (bc *buildingController) getBuilding(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, building)
 }
 
+// getBuildings fetches all buildings stored in the system.
+// endpoint: GET /buildings
 func (bc *buildingController) getBuildings(ctx *gin.Context) {
 	buildings, err := bc.buildingService.GetAllBuildings()
 	if err != nil {
@@ -71,6 +75,8 @@ func (bc *buildingController) getBuildings(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, buildings)
 }
 
+// getTotalCarbon fetches the total carbon impact of a building by its ID.
+// endpoint: GET /buildings/:id/calculation/total-carbon
 func (bc *buildingController) getTotalCarbon(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
