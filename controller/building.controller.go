@@ -90,3 +90,39 @@ func (bc *buildingController) getTotalCarbon(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"totalCarbon": totalCarbon})
 }
+
+// getEmbodiedCarbon fetches the embodied carbon of a building by its ID.
+// endpoint: GET /buildings/:id/calculation/embodied-carbon
+func (bc *buildingController) getEmbodiedCarbon(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil {
+		helpers.RespondWithError(ctx, http.StatusBadRequest, "Invalid ID format")
+		return
+	}
+	embodiedCarbon, err := bc.buildingService.ComputeEmbodiedCarbon(uint(id))
+	if err != nil {
+		helpers.RespondWithError(ctx, http.StatusNotFound, "Building not found or calculation error")
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"embodiedCarbon": embodiedCarbon})
+}
+
+// put endpoint: PUT /buildings/:id
+func (bc *buildingController) updateBuilding(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil {
+		helpers.RespondWithError(ctx, http.StatusBadRequest, "Invalid ID format")
+		return
+	}
+	var req service.UpdateBuildingRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		helpers.RespondWithError(ctx, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+	building, err := bc.buildingService.UpdateBuilding(uint(id), req)
+	if err != nil {
+		helpers.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+		return
+	}
+	ctx.JSON(http.StatusOK, building)
+}
