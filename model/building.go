@@ -2,6 +2,7 @@ package model
 
 import (
 	"carbon-service/service/calculator"
+	"math"
 
 	"gorm.io/gorm"
 )
@@ -63,10 +64,28 @@ func (b *Building) CalculateCarbonForPhase(phases ...string) float64 {
 	return total
 }
 
+// TODO: #2 needs alot of work
 // convert values to metric or imperial and whether its tco2, kgco2, kgco2/m2, kgco2/m2/year
 func (b *Building) ConvertValues(isMetric bool, option int) Building {
 	for _, assembly := range b.Assemblies {
 		assembly.ConvertValues(isMetric, option)
 	}
 	return *b
+}
+
+// calculate perimeter of the building given area and aspect ratio
+func calculatePerimeter(aspectRatio, area float64) float64 {
+
+	// error handling
+	if aspectRatio <= 0 || area <= 0 {
+		panic("aspect ratio and area must be greater than 0")
+	}
+
+	// Calculate width and height
+	width := math.Sqrt(area * aspectRatio)
+	height := area / width
+
+	// Calculate perimeter
+	perimeter := 2 * (width + height)
+	return perimeter
 }
