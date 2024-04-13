@@ -13,3 +13,8 @@ type CarbonCalculator interface {
 type PhaseBasedCarbonCalculator interface {
 	CalculateCarbonForPhase(phase ...string) float64
 }
+
+// EmbodiedCarbonCalculator defines the interface for calculating embodied carbon
+type EmbodiedCarbonCalculator interface {
+	CalculateEmbodiedCarbon() float64
+}
