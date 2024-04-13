@@ -35,6 +35,11 @@ type CreateBuildingRequest struct {
 	Assemblies []model.Assembly `json:"assemblies"`
 }
 
+type UpdateBuildingRequest struct {
+	Name       string            `json:"name"`
+	Assemblies []*model.Assembly `json:"assemblies"`
+}
+
 // CreateBuilding attempts to add a new building with the given name,
 // ensuring name uniqueness within the repository.
 func (bs *buildingService) CreateBuilding(req CreateBuildingRequest) (*model.Building, error) {
