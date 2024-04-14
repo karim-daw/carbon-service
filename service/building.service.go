@@ -118,7 +118,7 @@ func (bs *buildingService) ComputeTotalCarbon(buildingID uint) (float64, error) 
 	}
 
 	// Now that we have a fully loaded building, calculate the total carbon impact
-	return building.ComputeWholeLifeCarbon(), nil
+	return bs.carbonCalcService.ComputeWholeLifeCarbonSync(building), nil
 }
 
 // method computes embodied carbon of building
@@ -131,5 +131,5 @@ func (bs *buildingService) ComputeEmbodiedCarbon(buildingID uint) (float64, erro
 	}
 
 	// Now that we have a fully loaded building, calculate the total carbon impact
-	return building.CalculateEmbodiedCarbon(), nil
+	return bs.carbonCalcService.ComputeEmbodiedCarbonSync(building), nil
 }
