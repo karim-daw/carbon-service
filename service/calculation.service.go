@@ -8,9 +8,9 @@ import (
 )
 
 type CalculationService interface {
-	ComputeWholeLifeCarbonSync(entities []calculator.CarbonCalculator) float64
-	ComputeTotalCarbonConcurrent(entities []calculator.CarbonCalculator) float64
-	ComputeEmbodiedCarbonSync(entities []calculator.EmbodiedCarbonCalculator) float64
+	ComputeWholeLifeCarbonSync(entities ...calculator.CarbonCalculator) float64
+	ComputeTotalCarbonConcurrent(entities ...calculator.CarbonCalculator) float64
+	ComputeEmbodiedCarbonSync(entities ...calculator.EmbodiedCarbonCalculator) float64
 }
 
 type calculationService struct{}
@@ -19,7 +19,7 @@ func NewCalculationService() *calculationService {
 	return &calculationService{}
 }
 
-func (s *calculationService) ComputeWholeLifeCarbonSync(entities []calculator.CarbonCalculator) float64 {
+func (s *calculationService) ComputeWholeLifeCarbonSync(entities ...calculator.CarbonCalculator) float64 {
 	var total float64
 	for _, entity := range entities {
 		total += entity.ComputeWholeLifeCarbon()
@@ -35,7 +35,7 @@ func (s *calculationService) ComputeEmbodiedCarbonSync(entities ...calculator.Em
 	return total
 }
 
-func (s *calculationService) ComputeTotalCarbonConcurrent(entities []calculator.CarbonCalculator) float64 {
+func (s *calculationService) ComputeTotalCarbonConcurrent(entities ...calculator.CarbonCalculator) float64 {
 	var wg sync.WaitGroup
 	totalCarbon := make(chan float64)
 
