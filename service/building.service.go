@@ -13,6 +13,8 @@ type BuildingService interface {
 	GetBuilding(id uint) (*model.Building, error)
 	GetAllBuildings() ([]model.Building, error)
 	ComputeTotalCarbon(buildingID uint) (float64, error)
+	ComputeEmbodiedCarbon(buildingID uint) (float64, error)
+	UpdateBuilding(id uint, req UpdateBuildingRequest) (*model.Building, error)
 }
 
 // buildingService provides a concrete implementation of the BuildingService,
@@ -31,8 +33,13 @@ func NewBuildingService(r repository.BuildingRepository, cs CalculationService) 
 }
 
 type CreateBuildingRequest struct {
-	Name       string           `json:"name" binding:"required"`
-	Assemblies []model.Assembly `json:"assemblies"`
+	Name                  string           `json:"name" binding:"required"`
+	FTF                   float64          `json:"ftf" binding:"required"`
+	GroundFloorArea       float64          `json:"groundFloorArea" binding:"required"`
+	WWR                   float64          `json:"wwr" binding:"required"`
+	AboveGroundFloorCount int              `json:"aboveGroundFloorCount" binding:"required"`
+	UnderGroundFloorCount int              `json:"underGroundFloorCount" binding:"required"`
+	Assemblies            []model.Assembly `json:"assemblies"`
 }
 
 type UpdateBuildingRequest struct {
@@ -53,12 +60,31 @@ func (bs *buildingService) CreateBuilding(req CreateBuildingRequest) (*model.Bui
 	}
 
 	building := &model.Building{
-		Name:       req.Name,
-		Assemblies: assemblies, // This can be an empty slice if no assemblies are provided
+		Name:                  req.Name,
+		FTF:                   req.FTF,
+		GroundFloorArea:       req.GroundFloorArea,
+		WWR:                   req.WWR,
+		AboveGroundFloorCount: req.AboveGroundFloorCount,
+		UnderGroundFloorCount: req.UnderGroundFloorCount,
+		Assemblies:            assemblies, // This can be an empty slice if no assemblies are provided
 	}
 	if err := bs.repo.Save(building); err != nil {
 		return nil, fmt.Errorf("failed to create building: %w", err)
 	}
+	return building, nil
+}
+
+// updateBuilding updates the building with the given ID using the provided data.
+func (bs *buildingService) UpdateBuilding(id uint, req UpdateBuildingRequest) (*model.Building, error) {
+	building, err := bs.repo.FindByID(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find building with ID %d: %w", id, err)
+	}
+
+	// map the new values to the building
+	building.Name = req.Name
+	building.Assemblies = req.Assemblies
+
 	return building, nil
 }
 
@@ -93,4 +119,17 @@ func (bs *buildingService) ComputeTotalCarbon(buildingID uint) (float64, error) 
 
 	// Now that we have a fully loaded building, calculate the total carbon impact
 	return building.ComputeWholeLifeCarbon(), nil
+}
+
+// method computes embodied carbon of building
+func (bs *buildingService) ComputeEmbodiedCarbon(buildingID uint) (float64, error) {
+	var building *model.Building
+	// Preload Assemblies and Materials for the building
+	building, err := bs.repo.EagerFindByID(buildingID) // Assign the value to building pointer
+	if err != nil {
+		return 0, fmt.Errorf("failed to find building with ID %d: %w", buildingID, err)
+	}
+
+	// Now that we have a fully loaded building, calculate the total carbon impact
+	return building.CalculateEmbodiedCarbon(), nil
 }
