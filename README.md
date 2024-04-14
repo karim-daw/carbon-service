@@ -30,7 +30,7 @@ The service includes the following models:
 Diagram of the models and their relationships:
 
 Image:
-![Image Description](carbon-service/assets/diagram.png)
+![Image Description](assets/diagram.png)
 
 # Getting Started
 
