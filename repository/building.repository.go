@@ -68,6 +68,8 @@ func (r *buildingRepository) EagerFindAll() ([]model.Building, error) {
 	return buildings, nil
 }
 
+// NewBuildingRepository creates a new building repository.
+// This function should be called only once per application lifetime.
 func NewBuildingRepository(db *gorm.DB) BuildingRepository {
 	return &buildingRepository{db: db}
 }
