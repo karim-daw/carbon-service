@@ -92,7 +92,3 @@ We welcome contributions from the community! If you find any bugs, have feature 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-Acknowledgments
-This project was inspired by the need for sustainable solutions in the building industry.
-Special thanks to the contributors who helped make this project possible.
