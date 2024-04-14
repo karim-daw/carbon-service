@@ -37,6 +37,17 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
+	// drop all tables
+	db.Migrator().DropTable(&model.Building{}, &model.Assembly{}, &model.Material{})
+
+	// Drop all tables, including join tables
+	if err := db.Migrator().DropTable(
+		"building_assemblies", // Name of the join table between assembly and material
+		"assembly_materials",  // Name of the join table between assembly and building
+	); err != nil {
+		log.Fatalf("Failed to drop tables: %v", err)
+	}
+
 	// Perform database migration
 	if err := db.AutoMigrate(&model.Building{}, &model.Assembly{}, &model.Material{}); err != nil {
 		log.Fatalf("Failed to auto-migrate database schemas: %v", err)
