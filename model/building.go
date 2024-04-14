@@ -26,6 +26,11 @@ type Building struct {
 	Assemblies            []*Assembly `gorm:"many2many:building_assemblies;"`
 }
 
+// calculate gfa of the building
+func (b *Building) CalculateGFA() float64 {
+	return b.GroundFloorArea * (float64(b.AboveGroundFloorCount) + float64(b.UnderGroundFloorCount))
+}
+
 // It calculates the embodied carbon of the building.
 func (b *Building) CalculateEmbodiedCarbon() float64 {
 
@@ -39,6 +44,7 @@ func (b *Building) CalculateEmbodiedCarbon() float64 {
 	b.RoofArea = b.GroundFloorArea
 
 	// Calculate the carbon emissions for each part of the building
+	// https://docs.cscale.io/readme/embodied-carbon
 	claddingEmission := b.CladdingArea * 8.8 // kgCO2/m2
 	glazingEmission := b.FacadeArea * 13.6   // kgCO2/m2
 	roofEmission := b.RoofArea * 7.7         // kgCO2/m2
