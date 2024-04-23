@@ -87,7 +87,7 @@ docker-compose run carbon-service go test ./tests
 
 # Contributing
 
-We welcome contributions from the community! If you find any bugs, have feature requests, or want to contribute improvements, please open an issue or submit a pull request.
+I obviosuly welcome contributions from the community! If you find any bugs, have feature requests, or want to contribute improvements, please open an issue or submit a pull request. This is still currently a WIP project but im currently building out basic features in the short term to enable clients to use the api for calculations. Methodology and research will also be updated in the near future.  
 
 ## License
 
