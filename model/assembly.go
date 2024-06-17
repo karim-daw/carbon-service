@@ -1,13 +1,11 @@
 package model
 
 import (
-	"carbon-service/service/calculator"
-
 	"gorm.io/gorm"
 )
 
 // Again, ensure Assembly conforms to the interface
-var _ calculator.CarbonCalculator = &Assembly{}
+var _ CarbonCalculator = &Assembly{}
 
 type Assembly struct {
 	gorm.Model
