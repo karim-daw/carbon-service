@@ -1,13 +1,12 @@
 package model
 
 import (
-	"carbon-service/service/calculator"
-
 	"gorm.io/gorm"
 )
 
 // Again, ensure Assembly conforms to the interface
-var _ calculator.CarbonCalculator = &Assembly{}
+var _ CarbonCalculator = &Assembly{}
+var _ ByIndicatorCarbonCalculator = &Assembly{}
 
 type Assembly struct {
 	gorm.Model
@@ -19,7 +18,6 @@ type Assembly struct {
 func (a Assembly) ComputeWholeLifeCarbon() float64 {
 	var totalImpact float64
 	for _, material := range a.Materials {
-		// Assuming Material also implements ComputeCarbonImpact() method
 		totalImpact += material.ComputeWholeLifeCarbon()
 	}
 	return totalImpact

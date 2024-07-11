@@ -1,14 +1,14 @@
 package model
 
 import (
-	"carbon-service/service/calculator"
 	"math"
 
 	"gorm.io/gorm"
 )
 
 // Ensure Building struct conforms to the CarbonCalculator interface
-var _ calculator.CarbonCalculator = &Building{}
+var _ CarbonCalculator = &Building{}
+var _ ByIndicatorCarbonCalculator = &Building{}
 
 type Building struct {
 	gorm.Model
