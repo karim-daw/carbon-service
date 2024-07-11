@@ -8,6 +8,7 @@ import (
 
 // Ensure Building struct conforms to the CarbonCalculator interface
 var _ CarbonCalculator = &Building{}
+var _ ByIndicatorCarbonCalculator = &Building{}
 
 type Building struct {
 	gorm.Model

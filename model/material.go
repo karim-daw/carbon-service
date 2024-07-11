@@ -6,6 +6,7 @@ import (
 
 // Indicator represents the carbon footprint of a material
 var _ CarbonCalculator = &Material{}
+var _ ByIndicatorCarbonCalculator = &Material{}
 
 // Assuming Indicator is defined somewhere in your model package
 

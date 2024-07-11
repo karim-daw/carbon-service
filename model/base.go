@@ -2,19 +2,19 @@ package model
 
 // CarbonCalculator defines the interface for calculating carbon impact
 type CarbonCalculator interface {
-
-	// ComputeWholeLifeCarbon calculates the total carbon impact of a material, assembly, or building
 	ComputeWholeLifeCarbon() float64
-
-	// CalculateCarbonForPhase calculates the carbon impact of a material, assembly, or building for a specific phase
-	CalculateCarbonForPhase(phase ...string) float64
 }
 
-type PhaseBasedCarbonCalculator interface {
+type ByIndicatorCarbonCalculator interface {
 	CalculateCarbonForPhase(phase ...string) float64
 }
 
 // EmbodiedCarbonCalculator defines the interface for calculating embodied carbon
 type EmbodiedCarbonCalculator interface {
 	CalculateEmbodiedCarbon() float64
+}
+
+// OperationalCarbonCalculator defines the interface for calculating operational carbon
+type OperationalCarbonCalculator interface {
+	CalculateOperationalCarbon() float64
 }
