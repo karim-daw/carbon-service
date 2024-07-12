@@ -21,11 +21,9 @@ type Material struct {
 	Assemblies []*Assembly `gorm:"many2many:assembly_materials;"`
 }
 
-//TODO: implement material having several indicators
-
 // ComputeCarbonImpact calculates the carbon impact of the material
 func (m Material) ComputeWholeLifeCarbon() float64 {
-	return m.Indicator.A1toA5 + m.Indicator.B1toB7 + m.Indicator.C1toC4 + m.Indicator.D
+	return m.Indicator.A1toA5() + m.Indicator.B1toB7() + m.Indicator.C1toC4()
 }
 
 // CalculateCarbonForPhase calculates the carbon impact of the material for specified phases
@@ -37,13 +35,12 @@ func (m Material) CalculateCarbonForPhase(phases ...string) float64 {
 	for _, phase := range phases {
 		switch phase {
 		case "A1toA5":
-			total += m.Indicator.A1toA5
+			total += m.Indicator.A1toA5()
 		case "B1toB7":
-			total += m.Indicator.B1toB7
+			total += m.Indicator.B1toB7()
 		case "C1toC4":
-			total += m.Indicator.C1toC4
-		case "D":
-			total += m.Indicator.D
+			total += m.Indicator.C1toC4()
+
 		}
 	}
 	return total
@@ -60,24 +57,18 @@ func (m *Material) ConvertValues(isMetric bool, option int) Material {
 
 	switch option {
 	case 1:
-		m.Indicator.A1toA5 = m.Indicator.A1toA5 / 1000
-		m.Indicator.B1toB7 = m.Indicator.B1toB7 / 1000
-		m.Indicator.C1toC4 = m.Indicator.C1toC4 / 1000
-		m.Indicator.D = m.Indicator.D / 1000
+		m.Indicator.A1toA5 = m.Indicator.A1toA5() * 1000
+		m.Indicator.B1toB7() = m.Indicator.B1toB7() * 1000
+		m.Indicator.C1toC4() = m.Indicator.C1toC4() * 1000
 	case 2:
-		m.Indicator.A1toA5 = m.Indicator.A1toA5 * 1000
-		m.Indicator.B1toB7 = m.Indicator.B1toB7 * 1000
-		m.Indicator.C1toC4 = m.Indicator.C1toC4 * 1000
-		m.Indicator.D = m.Indicator.D * 1000
+		m.Indicator.A1toA5() = m.Indicator.A1toA5() * 1000
+		m.Indicator.B1toB7() = m.Indicator.B1toB7() * 1000
+		m.Indicator.C1toC4() = m.Indicator.C1toC4() * 1000
 	case 3:
-		m.Indicator.A1toA5 = m.Indicator.A1toA5 / 1000
-		m.Indicator.B1toB7 = m.Indicator.B1toB7 / 1000
-		m.Indicator.C1toC4 = m.Indicator.C1toC4 / 1000
-		m.Indicator.D = m.Indicator.D / 1000
-		m.Indicator.A1toA5 = m.Indicator.A1toA5 / 1000
-		m.Indicator.B1toB7 = m.Indicator.B1toB7 / 1000
-		m.Indicator.C1toC4 = m.Indicator.C1toC4 / 1000
-		m.Indicator.D = m.Indicator.D / 1000
+		m.Indicator.A1toA5() = m.Indicator.A1toA5() / 1000
+		m.Indicator.B1toB7() = m.Indicator.B1toB7() / 1000
+		m.Indicator.C1toC4() = m.Indicator.C1toC4() / 1000
+
 	}
 
 	return *m
